@@ -12,19 +12,14 @@ import math
 import random
 
 
-# ──────────────────────────────────────────────
-#  CONFIGURACIÓN  (edita aquí lo que necesites)
-# ──────────────────────────────────────────────
-DATOS_URL = "https://zazil.onrender.com/"  
-NOMBRE_ARCHIVO = "/Users/sebastianbernal/Downloads/QR_Zazil.png" 
-   # ← nombre del archivo de salida
+DATOS_URL = "direccion a sacar el qr"  
+NOMBRE_ARCHIVO = "Direccion a guardar" 
 
-# Paleta personalizada
-COLOR_OSCURO   = (101, 33, 110)     # #65216E — módulos del QR / borde gradiente
-COLOR_CLARO    = (166, 117, 211)    # primaryColor  #A675D3 — centro del gradiente
-FONDO_COLOR    = (237, 220, 252)    # lavanda suave derivada de primaryColor
-FONDO_TARJETA  = (247, 235, 255)    # fondo del recuadro blanco del QR
-# ──────────────────────────────────────────────
+
+COLOR_OSCURO   = (101, 33, 110)    
+COLOR_CLARO    = (166, 117, 211)    
+FONDO_COLOR    = (237, 220, 252)   
+FONDO_TARJETA  = (247, 235, 255)    
 
 
 def crear_fondo(ancho: int, alto: int) -> Image.Image:
@@ -32,7 +27,6 @@ def crear_fondo(ancho: int, alto: int) -> Image.Image:
     fondo = Image.new("RGBA", (ancho, alto), FONDO_COLOR + (255,))
     draw = ImageDraw.Draw(fondo)
 
-    # Manchas de color suaves (blobs)
     blobs = [
         (ancho * 0.85, alto * 0.75, ancho * 0.45, (100, 70, 160, 60)),
         (ancho * 0.0,  alto * 0.0,  ancho * 0.4,  (180, 150, 220, 40)),
@@ -45,7 +39,6 @@ def crear_fondo(ancho: int, alto: int) -> Image.Image:
         blob_layer = blob_layer.filter(ImageFilter.GaussianBlur(radius=br * 0.6))
         fondo = Image.alpha_composite(fondo, blob_layer)
 
-    # Líneas curvas decorativas (acento rosa/rojo)
     draw = ImageDraw.Draw(fondo)
     puntos_curva = [
         (ancho * 0.6, alto * 0.3),
@@ -62,7 +55,6 @@ def crear_fondo(ancho: int, alto: int) -> Image.Image:
     ]
     draw.line(puntos_curva2, fill=(200, 80, 120, 100), width=2)
 
-    # Estrellas de 4 puntas
     estrellas = [
         (ancho * 0.78, alto * 0.18, 18, 180),
         (ancho * 0.88, alto * 0.24, 12, 140),
@@ -115,11 +107,9 @@ def generar_qr_imagen(datos: str) -> Image.Image:
 
 def componer_imagen_final(datos: str, nombre_archivo: str) -> None:
     """Compone la imagen final: fondo + tarjeta + QR."""
-    # 1. Generar QR
     img_qr = generar_qr_imagen(datos)
     qr_w, qr_h = img_qr.size
 
-    # 2. Tarjeta blanca redondeada alrededor del QR
     pad = 36
     tarjeta_w = qr_w + pad * 2
     tarjeta_h = qr_h + pad * 2
@@ -133,7 +123,6 @@ def componer_imagen_final(datos: str, nombre_archivo: str) -> None:
     )
     tarjeta.paste(img_qr, (pad, pad), img_qr)
 
-    # 3. Lienzo total
     margen = 60
     canvas_w = tarjeta_w + margen * 2
     canvas_h = tarjeta_h + margen * 2
@@ -141,13 +130,11 @@ def componer_imagen_final(datos: str, nombre_archivo: str) -> None:
     fondo = crear_fondo(canvas_w, canvas_h)
     fondo.paste(tarjeta, (margen, margen), tarjeta)
 
-    # 4. Guardar
     fondo_rgb = fondo.convert("RGB")
     fondo_rgb.save(nombre_archivo, "PNG", quality=95)
     print(f"✅  QR guardado en: {nombre_archivo}")
     print(f"   Tamaño: {canvas_w} × {canvas_h} px")
 
 
-# ──────────────────────────────────────────────
 if __name__ == "__main__":
     componer_imagen_final(DATOS_URL, NOMBRE_ARCHIVO)
